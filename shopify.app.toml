@@ -6,7 +6,6 @@ embedded = true
 [build]
 automatically_update_urls_on_dev = true
 dev_store_url = "testing-plant-bundle.myshopify.com"
-include_config_on_deploy = true
 
 [access_scopes]
 # Expanded scopes to allow the app to fully sync and generate products/variants and manage files

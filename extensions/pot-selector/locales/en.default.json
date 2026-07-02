@@ -1,0 +1,20 @@
+{
+  "blocks": {
+    "hello_world": {
+      "name": "Hello World Test",
+      "settings": {
+        "title": "Hello World Test"
+      }
+    },
+    "pot_selector": {
+      "name": "Pot Selector",
+      "settings": {
+        "title": "Pot Selector"
+      }
+    }
+  },
+  "settings": {
+    "size": "Size",
+    "color": "Color"
+  }
+}
