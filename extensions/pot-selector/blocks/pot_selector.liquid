@@ -7,7 +7,7 @@
      class="pot-bundle-container" 
      style="display:block;"
      data-product-id="{{ product.id }}" 
-     data-app-url="{{ block.settings.app_url | default: 'https://plant-bundle-production.up.railway.app' }}"
+     data-app-url="{{ block.settings.app_url | default: 'http://plant-bundle-xi-production.up.railway.app/' }}"
      data-image-selector="{{ block.settings.image_selector | escape }}">
   
   <div id="pot-selection-ui" class="pot-selection-wrapper">
@@ -462,7 +462,7 @@
       "type": "text",
       "id": "app_url",
       "label": "App server URL",
-      "default": "https://plant-bundle-production.up.railway.app",
+      "default": "http://plant-bundle-xi-production.up.railway.app",
       "info": "Your Railway app URL (no trailing slash). The widget loads pot colors, prices and stock from here."
     },
     {
