@@ -1,23 +1,21 @@
 {% comment %}
-  Unified Plant + Pot Bundle Selector 
+  Unified Plant + Pot Bundle Selector
   v4.0 - Advanced Bidirectional Size/Color Sync
 {% endcomment %}
 
-<div id="pot-bundle-root" 
-     class="pot-bundle-container" 
-     style="display:block;"
-     data-product-id="{{ product.id }}" 
-     data-app-url="{{ block.settings.app_url | default: 'http://plant-bundle-xi-production.up.railway.app/' }}"
+<div id="pot-bundle-root"
+     class="pot-bundle-container"
+     style="display:none;"
+     data-product-id="{{ product.id }}"
+     data-app-url="{{ block.settings.app_url | default: 'https://plant-bundle-xi-production.up.railway.app' }}"
      data-image-selector="{{ block.settings.image_selector | escape }}">
-  
+
   <div id="pot-selection-ui" class="pot-selection-wrapper">
     <!-- pot Color Header -->
     <div class="pot-header">
       <span class="pot-label">Pot Color</span>
       <span class="pot-selected-name">— <span id="current-pot-name">Choose a color</span></span>
     </div>
-
-    <div id="pot-config-status" class="pot-config-status" style="display:none;"></div>
 
     <!-- Swatches Container -->
     <div class="pot-swatches-grid" id="pot-swatches-container">
@@ -29,7 +27,7 @@
       <label class="no-pot-checkbox-wrapper">
         <input type="checkbox" id="no-pot-toggle" class="no-pot-input">
         <div class="no-pot-card">
-          <img class="no-pot-icon" src="https://cdn.shopify.com/s/files/1/0968/5384/files/pot_with_X.png?v=1764059593" width="52" height="52" alt="No Pot" />
+          <img class="no-pot-icon" src="https://cdn.shopify.com/s/files/1/0968/5384/files/pot_with_X.png?v=1764059593" alt="No Pot" />
           <div class="no-pot-content">
             <span class="no-pot-title"><strong>NO POT OPTION</strong></span>
             <span class="no-pot-discount" id="no-pot-save-text">SAVE $10 – Plant will be shipped bare-root</span>
@@ -99,20 +97,6 @@
   .no-pot-discount { font-size: 14px; color: #333; font-weight: 500; }
 
   .pot-loading { font-style: italic; color: #999; font-size: 13px; }
-  .pot-config-status {
-    margin-bottom: 10px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: #f7faf0;
-    color: #5b6f2f;
-    font-size: 13px;
-    border: 1px solid #e4ebcf;
-  }
-  .pot-config-status.pot-config-error {
-    background: #fff5f5;
-    color: #b42318;
-    border-color: #fecaca;
-  }
 </style>
 
 <script>
@@ -122,7 +106,7 @@
 
   const appUrl = root.dataset.appUrl;
   const productId = root.dataset.productId;
-  
+
   const state = {
     colors: [],
     inventory: [],
@@ -137,7 +121,7 @@
   const isWithPotVal = v => /with pot/i.test(v || '') && !NO_POT_RE.test(v || '');
   function normalizeSizeLabel(s) {
     return (s || '').toLowerCase()
-      .replace(/["\u201c\u201d]/g, ' inch')
+      .replace(/["“”]/g, ' inch')
       .replace(/gallons?\b/g, 'gal')
       .replace(/\bgal\./g, 'gal')
       .replace(/\bpot\b/g, '')
@@ -159,31 +143,10 @@
     el.textContent = `SAVE $${amt % 1 === 0 ? amt.toFixed(0) : amt.toFixed(2)} – ${state.noPotSubtext || 'Plant will be shipped bare-root'}`;
   }
 
-  function setStatus(message, isError = false) {
-    const statusEl = document.getElementById('pot-config-status');
-    if (!statusEl) return;
-    if (!message) {
-      statusEl.style.display = 'none';
-      statusEl.textContent = '';
-      statusEl.classList.remove('pot-config-error');
-      return;
-    }
-    statusEl.textContent = message;
-    statusEl.style.display = 'block';
-    statusEl.classList.toggle('pot-config-error', Boolean(isError));
-  }
-
   async function init() {
-    setStatus('Loading pot options...', false);
     try {
       const [configRes, colorsRes, invRes, settingsRes] = await Promise.all([
-        fetch(`${appUrl}/api/product-config/${productId}`).then(async r => {
-          if (!r.ok) {
-            if (r.status === 404) return null;
-            throw new Error(`Config request failed with ${r.status}`);
-          }
-          return r.json();
-        }),
+        fetch(`${appUrl}/api/product-config/${productId}`).then(r => r.json()),
         fetch(`${appUrl}/api/pots/colors`).then(r => r.json()),
         fetch(`${appUrl}/api/inventory`).then(r => r.json()),
         fetch(`${appUrl}/api/app-settings`).then(r => r.json()).catch(() => ({}))
@@ -195,11 +158,10 @@
       state.noPotSubtext = (settingsRes && settingsRes.no_pot_subtext) || 'Plant will be shipped bare-root';
 
       if (!state.config || !state.config.is_enabled) {
-        setStatus(state.config ? 'Pot selection is not enabled for this product yet.' : 'Pot selection is temporarily unavailable for this product.', true);
+        root.style.display = 'none';
         return;
       }
-      
-      setStatus('');
+
       root.style.display = 'block';
 
       // Analytics: count one product-page view per browser session
@@ -222,7 +184,7 @@
       ensureInputInForm();
       setupListeners();
       hideNativePotOption();
-      
+
       // Initial render based on Shopify's pre-selected variant
       handleVariantChange();
       updateNoPotLabel();
@@ -242,7 +204,7 @@
   function getPotSize() {
     const variantId = document.querySelector('[name="id"]')?.value;
     const mapping = state.config.size_mappings?.find(m => m.shopify_variant_id == variantId);
-    return mapping ? mapping.pot_size : 'Small'; 
+    return mapping ? mapping.pot_size : 'Small';
   }
 
   /**
@@ -251,7 +213,7 @@
   function handleVariantChange() {
     const newVariantId = document.querySelector('[name="id"]')?.value;
     if (newVariantId === state.currentVariantId) return;
-    
+
     state.currentVariantId = newVariantId;
 
     // Per-size pot mode: 'none' (2 inch, 5 gal+), 'required' (4 inch - pot
@@ -274,7 +236,7 @@
 
     updateNoPotLabel();
     const potSize = getPotSize();
-    
+
     // Check if previously selected color is available in the NEW size
     if (state.selectedColor) {
         const colorObj = state.colors.find(c => c.name === state.selectedColor);
@@ -312,10 +274,10 @@
       const inv = state.inventory.find(i => i.color_id === color.id && i.size === potSize);
       const isStocked = inv && inv.quantity > 0;
       const isActive = state.selectedColor === color.name;
-      
+
       return `
-        <div class="pot-swatch-item ${isStocked ? '' : 'oos'} ${isActive ? 'active' : ''}" 
-             data-color-name="${color.name}" 
+        <div class="pot-swatch-item ${isStocked ? '' : 'oos'} ${isActive ? 'active' : ''}"
+             data-color-name="${color.name}"
              ${isStocked ? `onclick="handleSwatchClick(event, '${color.name}', '${potSize}')"` : ''}>
           <div class="pot-swatch-border">
             ${color.image_url
@@ -325,7 +287,7 @@
         </div>
       `;
     }).join('');
-    
+
     // Update image if we have a selection
     if (state.selectedColor) {
         updateProductImage(state.selectedColor, potSize);
@@ -336,7 +298,7 @@
     state.selectedColor = name;
     document.querySelectorAll('.pot-swatch-item').forEach(el => el.classList.remove('active'));
     event.currentTarget.classList.add('active');
-    
+
     document.getElementById('current-pot-name').textContent = name;
     document.getElementById('final-pot-property').value = name;
     const noPotToggle = document.getElementById('no-pot-toggle');
@@ -420,7 +382,7 @@
           setTimeout(handleVariantChange, 50); // Small delay to let Shopify update its DOM
       }
     });
-    
+
     // Listen for Button-based swatches (some themes don't trigger 'change' on hidden inputs)
     document.addEventListener('click', (e) => {
         if (e.target.closest('.variant-input, .swatch-element')) {
@@ -462,7 +424,7 @@
       "type": "text",
       "id": "app_url",
       "label": "App server URL",
-      "default": "http://plant-bundle-xi-production.up.railway.app",
+      "default": "https://plant-bundle-xi-production.up.railway.app",
       "info": "Your Railway app URL (no trailing slash). The widget loads pot colors, prices and stock from here."
     },
     {
