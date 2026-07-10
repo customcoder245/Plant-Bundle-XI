@@ -13,7 +13,7 @@ async function applyPotPricingToProduct(shopifyProductId) {
     const accessToken = process.env.ADMIN_API || process.env.SHOPIFY_ACCESS_TOKEN;
     if (!shop || !accessToken) throw new Error('Shopify credentials not configured');
 
-    const prodRes = await fetch(`https://${shop}/admin/api/2023-10/products/${shopifyProductId}.json`, {
+    const prodRes = await fetch(`https://${shop}/admin/api/2026-07/products/${shopifyProductId}.json`, {
         headers: { 'X-Shopify-Access-Token': accessToken }
     });
     if (!prodRes.ok) throw new Error(`Shopify product fetch failed (${prodRes.status})`);
@@ -63,7 +63,7 @@ async function applyPotPricingToProduct(shopifyProductId) {
         const noPotTarget = storedBase !== undefined ? r2(target - deduction) : null;
 
         if (parseFloat(v.price) !== target) {
-            const updRes = await fetch(`https://${shop}/admin/api/2023-10/variants/${v.id}.json`, {
+            const updRes = await fetch(`https://${shop}/admin/api/2026-07/variants/${v.id}.json`, {
                 method: 'PUT',
                 headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ variant: { id: v.id, price: target.toFixed(2) } })
@@ -74,7 +74,7 @@ async function applyPotPricingToProduct(shopifyProductId) {
             skipped.push({ variant: v.title, reason: manual !== undefined ? 'manual price - kept' : 'already correct' });
         }
         if (noPotTarget !== null && parseFloat(sibling.price) !== noPotTarget) {
-            const sibRes = await fetch(`https://${shop}/admin/api/2023-10/variants/${sibling.id}.json`, {
+            const sibRes = await fetch(`https://${shop}/admin/api/2026-07/variants/${sibling.id}.json`, {
                 method: 'PUT',
                 headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ variant: { id: sibling.id, price: noPotTarget.toFixed(2) } })

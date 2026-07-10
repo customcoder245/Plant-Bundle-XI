@@ -14,7 +14,7 @@ async function listWebhooks() {
     const shop = process.env.SHOPIFY_STORE_DOMAIN;
     const token = process.env.ADMIN_API || process.env.SHOPIFY_ACCESS_TOKEN;
     if (!shop || !token) throw new Error('Shopify credentials not configured');
-    const r = await fetch(`https://${shop}/admin/api/2023-10/webhooks.json?limit=100`, {
+    const r = await fetch(`https://${shop}/admin/api/2026-07/webhooks.json?limit=100`, {
         headers: { 'X-Shopify-Access-Token': token }
     });
     if (!r.ok) throw new Error(`Webhook list failed (${r.status})`);
@@ -46,10 +46,10 @@ async function ensureWebhooks() {
         if (correct) { result.kept.push(topic); continue; }
         // remove stale registrations for this topic (old URLs)
         for (const stale of mine) {
-            await fetch(`https://${shop}/admin/api/2023-10/webhooks/${stale.id}.json`, { method: 'DELETE', headers });
+            await fetch(`https://${shop}/admin/api/2026-07/webhooks/${stale.id}.json`, { method: 'DELETE', headers });
             result.replaced.push({ topic, old_address: stale.address });
         }
-        const r = await fetch(`https://${shop}/admin/api/2023-10/webhooks.json`, {
+        const r = await fetch(`https://${shop}/admin/api/2026-07/webhooks.json`, {
             method: 'POST', headers,
             body: JSON.stringify({ webhook: { topic, address, format: 'json' } })
         });

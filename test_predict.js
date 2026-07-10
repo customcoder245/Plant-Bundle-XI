@@ -13,7 +13,7 @@ function predictPotSize(optionValue) {
 
 async function test() {
     console.log('Fetching products...');
-    const res = await fetch(`https://${shop}/admin/api/2023-10/products.json?limit=250`, { headers: { 'X-Shopify-Access-Token': token } });
+    const res = await fetch(`https://${shop}/admin/api/2026-07/products.json?limit=250`, { headers: { 'X-Shopify-Access-Token': token } });
     const data = await res.json();
     const product = data.products.find(p => p.title.includes('Rosemary'));
     if (!product) return console.log('Product not found');

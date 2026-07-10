@@ -84,7 +84,7 @@ router.post('/', async (req, res) => {
         const accessToken = process.env.ADMIN_API || process.env.SHOPIFY_ACCESS_TOKEN;
         if (accessToken) {
             try {
-                await fetch(`https://${shop}/admin/api/2023-10/collects.json`, {
+                await fetch(`https://${shop}/admin/api/2026-07/collects.json`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ router.put('/:id/toggle', async (req, res) => {
         if (accessToken) {
             console.log(`Syncing status for ${shopifyProductId} to ${isEnabled ? 'ACTIVE' : 'DRAFT'}...`);
 
-            await fetch(`https://${shop}/admin/api/2023-10/products/${shopifyProductId}.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/products/${shopifyProductId}.json`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ router.delete('/:id', async (req, res) => {
             console.log(`Deep-Deleting product ${shopifyProductId} from Shopify...`);
 
             // 2. Delete from Shopify API
-            await fetch(`https://${shop}/admin/api/2023-10/products/${shopifyProductId}.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/products/${shopifyProductId}.json`, {
                 method: 'DELETE',
                 headers: { 'X-Shopify-Access-Token': accessToken }
             });

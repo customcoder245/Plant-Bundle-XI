@@ -83,7 +83,7 @@ router.post('/create', async (req, res) => {
             }));
         }
 
-        const shopifyRes = await fetch(`https://${shop}/admin/api/2023-10/products.json`, {
+        const shopifyRes = await fetch(`https://${shop}/admin/api/2026-07/products.json`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ router.post('/create', async (req, res) => {
         // NEW: Add to Collection
         const collectionId = process.env.SHOPIFY_COLLECTION_ID || 320337641590;
         try {
-            await fetch(`https://${shop}/admin/api/2023-10/collects.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/collects.json`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ router.post('/sync-config', async (req, res) => {
         for (let i = 0; i < productIds.length; i += 250) {
             const chunk = productIds.slice(i, i + 250);
             const prodRes = await fetch(
-                `https://${shop}/admin/api/2023-10/products.json?ids=${chunk.join(',')}&limit=250`,
+                `https://${shop}/admin/api/2026-07/products.json?ids=${chunk.join(',')}&limit=250`,
                 { headers: { 'X-Shopify-Access-Token': accessToken } }
             );
             if (!prodRes.ok) throw new Error('Failed to fetch product details');
@@ -207,7 +207,7 @@ router.post('/sync-config', async (req, res) => {
                      RETURNING id`,
                     [p.id, p.title]
                 );
-                
+
                 const configId = configResult.rows[0].id;
 
                 // Sync exact variant names (sizes) from Shopify
@@ -224,16 +224,16 @@ router.post('/sync-config', async (req, res) => {
 
                     // Clear old mappings to perfectly reflect Shopify's current variants
                     await clientDb.query('DELETE FROM size_mappings WHERE product_config_id = $1', [configId]);
-                    
+
                     for (const v of p.variants) {
                         const vIdStr = String(v.id);
                         let potSize = existingMap.get(vIdStr);
                         if (!potSize) {
                             potSize = predictPotSize(v.option1 || v.title);
                         }
-                        
+
                         await clientDb.query(
-                            `INSERT INTO size_mappings (product_config_id, shopify_variant_id, variant_title, pot_size) 
+                            `INSERT INTO size_mappings (product_config_id, shopify_variant_id, variant_title, pot_size)
                              VALUES ($1, $2, $3, $4)`,
                             [configId, v.id, v.title, potSize]
                         );
@@ -284,7 +284,7 @@ router.get('/search', async (req, res) => {
             }
           }
         }`;
-        const r = await fetch(`https://${shop}/admin/api/2023-10/graphql.json`, {
+        const r = await fetch(`https://${shop}/admin/api/2026-07/graphql.json`, {
             method: 'POST',
             headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: gql })
@@ -342,7 +342,7 @@ router.get('/', async (req, res) => {
             // Fetch FULL product details in chunks (Shopify caps the ids param)
             for (let i = 0; i < productIds.length; i += 250) {
                 const chunk = productIds.slice(i, i + 250);
-                const url = `https://${shop}/admin/api/2023-10/products.json?ids=${chunk.join(',')}&limit=250`;
+                const url = `https://${shop}/admin/api/2026-07/products.json?ids=${chunk.join(',')}&limit=250`;
                 const shopifyRes = await fetch(url, { headers: { 'X-Shopify-Access-Token': accessToken } });
                 if (!shopifyRes.ok) throw new Error(await shopifyRes.text());
                 const data = await shopifyRes.json();
@@ -385,7 +385,7 @@ router.post('/:id/generate-variants', async (req, res) => {
         });
 
         // 1. Update the product to have the right options
-        const shopifyResOptions = await fetch(`https://${shop}/admin/api/2023-10/products/${id}.json`, {
+        const shopifyResOptions = await fetch(`https://${shop}/admin/api/2026-07/products/${id}.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': accessToken },
             body: JSON.stringify({
@@ -456,7 +456,7 @@ function isNoPotValue(v) { return NO_POT_RE.test(v || ''); }
 function isWithPotValue(v) { const s = v || ''; return WITH_POT_RE.test(s) && !NO_POT_RE.test(s); }
 function normalizeSizeLabel(s) {
     return (s || '').toLowerCase()
-        .replace(/["\u201c\u201d]/g, ' inch')
+        .replace(/["“”]/g, ' inch')
         .replace(/gallons?\b/g, 'gal')
         .replace(/\bgal\./g, 'gal')
         .replace(/\bpot\b/g, '')
@@ -494,7 +494,7 @@ router.post('/:id/setup-bundle', async (req, res) => {
     try {
         const { product_title, size_mappings: requestedMappings = [] } = req.body || {};
 
-        let prodRes = await fetch(`https://${shop}/admin/api/2023-10/products/${req.params.id}.json`, { headers });
+        let prodRes = await fetch(`https://${shop}/admin/api/2026-07/products/${req.params.id}.json`, { headers });
         if (!prodRes.ok) throw new Error(`Shopify product fetch failed (${prodRes.status})`);
         let product = (await prodRes.json()).product;
 
@@ -569,7 +569,7 @@ router.post('/:id/setup-bundle', async (req, res) => {
 
         // 1. Add the Pot option and stamp existing variants
         if (plan.needsPotOption) {
-            const putRes = await fetch(`https://${shop}/admin/api/2023-10/products/${product.id}.json`, {
+            const putRes = await fetch(`https://${shop}/admin/api/2026-07/products/${product.id}.json`, {
                 method: 'PUT', headers,
                 body: JSON.stringify({ product: {
                     id: product.id,
@@ -587,7 +587,7 @@ router.post('/:id/setup-bundle', async (req, res) => {
         // 2. Create Without-Pot twins for eligible sizes
         const createFailures = [];
         for (const cv of plan.createVariants) {
-            const r = await fetch(`https://${shop}/admin/api/2023-10/products/${product.id}/variants.json`, {
+            const r = await fetch(`https://${shop}/admin/api/2026-07/products/${product.id}/variants.json`, {
                 method: 'POST', headers,
                 body: JSON.stringify({ variant: { option1: cv.option1, option2: cv.option2, price: cv.price, inventory_management: 'shopify' } })
             });
@@ -596,14 +596,14 @@ router.post('/:id/setup-bundle', async (req, res) => {
 
         // 3. Reprice existing twins that drifted from the discount table
         for (const rv of plan.repriceVariants) {
-            await fetch(`https://${shop}/admin/api/2023-10/variants/${rv.id}.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/variants/${rv.id}.json`, {
                 method: 'PUT', headers,
                 body: JSON.stringify({ variant: { id: rv.id, price: rv.price } })
             });
         }
 
         // 4. Refetch to get the final variant set
-        prodRes = await fetch(`https://${shop}/admin/api/2023-10/products/${product.id}.json`, { headers });
+        prodRes = await fetch(`https://${shop}/admin/api/2026-07/products/${product.id}.json`, { headers });
         product = (await prodRes.json()).product;
 
         // 5. Save config + size->pot mappings (wizard mapping wins, else prediction)

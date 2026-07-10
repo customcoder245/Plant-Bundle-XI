@@ -31,12 +31,12 @@ async function fixMappings() {
         const configs = configsRes.rows;
 
         if (configs.length === 0) return;
-        
+
         const ids = configs.map(c => c.shopify_product_id);
-        const prodRes = await fetch(`https://${shop}/admin/api/2023-10/products.json?ids=${ids.join(',')}&limit=250`, {
+        const prodRes = await fetch(`https://${shop}/admin/api/2026-07/products.json?ids=${ids.join(',')}&limit=250`, {
             headers: { 'X-Shopify-Access-Token': token }
         });
-        
+
         const data = await prodRes.json();
         const products = data.products || [];
 
@@ -51,13 +51,13 @@ async function fixMappings() {
                 // Predict the standardized size for correct inventory tracking
                 const sizeName = predictPotSize(v.option1 || v.title);
                 await client.query(
-                    `INSERT INTO size_mappings (product_config_id, shopify_variant_id, variant_title, pot_size) 
+                    `INSERT INTO size_mappings (product_config_id, shopify_variant_id, variant_title, pot_size)
                      VALUES ($1, $2, $3, $4)`,
                     [config.id, v.id, v.title, sizeName]
                 );
             }
         }
-        
+
         console.log('Successfully fixed size_mappings!');
     } catch (e) {
         console.error('Error:', e);

@@ -29,7 +29,7 @@ async function fetchProductIdsForCollections(shop, token, collectionIds) {
     const idSet = new Set();
     for (const cid of collectionIds) {
         try {
-            const res = await fetch(`https://${shop}/admin/api/2023-10/collections/${cid}/products.json?fields=id&limit=250`, { headers });
+            const res = await fetch(`https://${shop}/admin/api/2026-07/collections/${cid}/products.json?fields=id&limit=250`, { headers });
             if (!res.ok) {
                 console.error(`Failed to fetch products for collection ${cid}:`, await res.text());
                 continue;

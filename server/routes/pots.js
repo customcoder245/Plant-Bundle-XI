@@ -38,14 +38,14 @@ router.put('/colors/:id', async (req, res) => {
     const { name, type, hex_code, display_order, is_active, image_url } = req.body;
     try {
         const result = await pool.query(
-            `UPDATE pot_colors SET 
-                name = COALESCE($1, name), 
-                type = COALESCE($2, type), 
-                hex_code = COALESCE($3, hex_code), 
-                display_order = COALESCE($4, display_order), 
-                is_active = COALESCE($5, is_active), 
-                image_url = COALESCE($6, image_url), 
-                updated_at = CURRENT_TIMESTAMP 
+            `UPDATE pot_colors SET
+                name = COALESCE($1, name),
+                type = COALESCE($2, type),
+                hex_code = COALESCE($3, hex_code),
+                display_order = COALESCE($4, display_order),
+                is_active = COALESCE($5, is_active),
+                image_url = COALESCE($6, image_url),
+                updated_at = CURRENT_TIMESTAMP
              WHERE id = $7 RETURNING *`,
             [name || null, type || null, hex_code || null, display_order || null, is_active !== undefined ? is_active : null, image_url || null, id]
         );
@@ -76,7 +76,7 @@ router.delete('/colors/:id', async (req, res) => {
 
 // ─── POT IMAGE UPLOAD (Shopify Files via staged upload) ─────────────────────
 async function gql(shop, token, query, variables) {
-    const r = await fetch(`https://${shop}/admin/api/2023-10/graphql.json`, {
+    const r = await fetch(`https://${shop}/admin/api/2026-07/graphql.json`, {
         method: 'POST',
         headers: { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, variables })

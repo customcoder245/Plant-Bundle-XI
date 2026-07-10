@@ -16,7 +16,7 @@ async function fetchShopifyCollections(shop, token) {
     const out = [];
     for (const kind of ['custom_collections', 'smart_collections']) {
         try {
-            const res = await fetch(`https://${shop}/admin/api/2023-10/${kind}.json?limit=250`, { headers });
+            const res = await fetch(`https://${shop}/admin/api/2026-07/${kind}.json?limit=250`, { headers });
             if (!res.ok) {
                 console.error(`Failed to fetch ${kind}:`, await res.text());
                 continue;
@@ -71,7 +71,7 @@ router.get('/:collectionId/products', async (req, res) => {
         const out = [];
         for (let i = 0; i < ids.length; i += 100) {
             const chunk = ids.slice(i, i + 100);
-            const r = await fetch(`https://${shop}/admin/api/2023-10/products.json?ids=${chunk.join(',')}&limit=250&fields=id,title`, {
+            const r = await fetch(`https://${shop}/admin/api/2026-07/products.json?ids=${chunk.join(',')}&limit=250&fields=id,title`, {
                 headers: { 'X-Shopify-Access-Token': token }
             });
             if (!r.ok) continue;

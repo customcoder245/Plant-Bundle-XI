@@ -21,7 +21,7 @@ async function registerWebhooks() {
 
     for (const webhook of topics) {
         try {
-            const response = await fetch(`https://${shop}/admin/api/2023-10/webhooks.json`, {
+            const response = await fetch(`https://${shop}/admin/api/2026-07/webhooks.json`, {
                 method: 'POST',
                 headers: {
                     'X-Shopify-Access-Token': accessToken,

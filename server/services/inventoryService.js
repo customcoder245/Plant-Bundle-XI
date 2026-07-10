@@ -238,7 +238,7 @@ let cachedLocationId = null;
 async function getShopifyLocationId(shop, token) {
     if (cachedLocationId) return cachedLocationId;
     try {
-        const res = await fetch(`https://${shop}/admin/api/2023-10/locations.json`, {
+        const res = await fetch(`https://${shop}/admin/api/2026-07/locations.json`, {
             headers: { 'X-Shopify-Access-Token': token }
         });
         if (res.ok) {
@@ -318,7 +318,7 @@ async function syncPotInventoryToShopify(potColorId, size, quantity) {
             const mappings = mappingsRes.rows;
             if (mappings.length === 0) continue;
 
-            const shopifyRes = await fetch(`https://${shop}/admin/api/2023-10/products/${config.shopify_product_id}.json`, {
+            const shopifyRes = await fetch(`https://${shop}/admin/api/2026-07/products/${config.shopify_product_id}.json`, {
                 headers: { 'X-Shopify-Access-Token': token }
             });
 
@@ -340,7 +340,7 @@ async function syncPotInventoryToShopify(potColorId, size, quantity) {
 
                 if (isSizeMatch && isColorMatch) {
                     console.log(`Syncing Shopify variant ${shopifyProduct.title} - ${variant.title} (ID: ${variant.id}) to ${quantity}`);
-                    await fetch(`https://${shop}/admin/api/2023-10/inventory_levels/set.json`, {
+                    await fetch(`https://${shop}/admin/api/2026-07/inventory_levels/set.json`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -368,7 +368,7 @@ async function syncPotsFromShopify() {
         throw new Error('Shopify credentials not configured in environment.');
     }
 
-    const response = await fetch(`https://${shop}/admin/api/2023-10/products.json?limit=250`, {
+    const response = await fetch(`https://${shop}/admin/api/2026-07/products.json?limit=250`, {
         headers: { 'X-Shopify-Access-Token': token }
     });
     if (!response.ok) {
@@ -450,8 +450,8 @@ async function syncPotsFromShopify() {
             const qty = variant.inventory_quantity || 0;
 
             const res = await pool.query(
-                `UPDATE pot_inventory 
-                 SET quantity = $1, updated_at = CURRENT_TIMESTAMP 
+                `UPDATE pot_inventory
+                 SET quantity = $1, updated_at = CURRENT_TIMESTAMP
                  WHERE pot_color_id = $2 AND size = $3
                  RETURNING *`,
                 [qty, variantColorId, matchedSize]
@@ -572,7 +572,7 @@ async function syncPlantInventoryToShopify(shopifyProductId, variantId, quantity
 
     try {
         // 1. Resolve the variant's inventory_item_id
-        const variantRes = await fetch(`https://${shop}/admin/api/2023-10/variants/${variantId}.json`, {
+        const variantRes = await fetch(`https://${shop}/admin/api/2026-07/variants/${variantId}.json`, {
             headers: { 'X-Shopify-Access-Token': token }
         });
         if (!variantRes.ok) {
@@ -585,7 +585,7 @@ async function syncPlantInventoryToShopify(shopifyProductId, variantId, quantity
         // 2. Set the inventory level at the primary location
         const locationId = await getShopifyLocationId(shop, token);
         if (locationId && variant.inventory_item_id != null) {
-            await fetch(`https://${shop}/admin/api/2023-10/inventory_levels/set.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/inventory_levels/set.json`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
                 body: JSON.stringify({
@@ -601,13 +601,13 @@ async function syncPlantInventoryToShopify(shopifyProductId, variantId, quantity
             try {
                 const sibIds = await getSizeSiblingVariantIds(pool, variantId);
                 for (const sibId of sibIds) {
-                    const sibRes = await fetch(`https://${shop}/admin/api/2023-10/variants/${sibId}.json`, {
+                    const sibRes = await fetch(`https://${shop}/admin/api/2026-07/variants/${sibId}.json`, {
                         headers: { 'X-Shopify-Access-Token': token }
                     });
                     if (!sibRes.ok) continue;
                     const sib = (await sibRes.json()).variant;
                     if (!sib || sib.inventory_item_id == null) continue;
-                    await fetch(`https://${shop}/admin/api/2023-10/inventory_levels/set.json`, {
+                    await fetch(`https://${shop}/admin/api/2026-07/inventory_levels/set.json`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
                         body: JSON.stringify({
@@ -628,7 +628,7 @@ async function syncPlantInventoryToShopify(shopifyProductId, variantId, quantity
         if (opts.sku !== undefined && opts.sku !== null) variantPatch.sku = opts.sku;
         if (opts.barcode !== undefined && opts.barcode !== null) variantPatch.barcode = opts.barcode;
         if (Object.keys(variantPatch).length > 0) {
-            await fetch(`https://${shop}/admin/api/2023-10/variants/${variantId}.json`, {
+            await fetch(`https://${shop}/admin/api/2026-07/variants/${variantId}.json`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
                 body: JSON.stringify({ variant: { id: variantId, ...variantPatch } })
@@ -660,7 +660,7 @@ async function syncPlantInventoryFromShopify() {
         // Make sure rows exist for all current size variants first
         await seedPlantInventoryForConfig(pool, config.id);
 
-        const prodRes = await fetch(`https://${shop}/admin/api/2023-10/products/${config.shopify_product_id}.json`, {
+        const prodRes = await fetch(`https://${shop}/admin/api/2026-07/products/${config.shopify_product_id}.json`, {
             headers: { 'X-Shopify-Access-Token': token }
         });
         if (!prodRes.ok) continue;

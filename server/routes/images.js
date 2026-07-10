@@ -78,7 +78,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             const base64Image = req.file.buffer.toString('base64');
             console.log(`Uploading file for Product ${shopifyProductId} (Variants: ${targetVariantIds.join(',') || 'none'})...`);
 
-            const shopifyRes = await fetch(`https://${shop}/admin/api/2023-10/products/${shopifyProductId}/images.json`, {
+            const shopifyRes = await fetch(`https://${shop}/admin/api/2026-07/products/${shopifyProductId}/images.json`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ router.get('/shopify-library', async (req, res) => {
             nodes { ... on MediaImage { id alt image { url width height } } }
           }
         }`;
-        const r = await fetch(`https://${shop}/admin/api/2023-10/graphql.json`, {
+        const r = await fetch(`https://${shop}/admin/api/2026-07/graphql.json`, {
             method: 'POST',
             headers: { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' },
             body: JSON.stringify({ query: gqlQuery })

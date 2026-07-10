@@ -40,7 +40,7 @@ async function collapseLegacyProduct(product) {
     }
 
     // Replace the whole variant set with clean size-only variants
-    const putRes = await fetch(`https://${shop}/admin/api/2023-10/products/${product.id}.json`, {
+    const putRes = await fetch(`https://${shop}/admin/api/2026-07/products/${product.id}.json`, {
         method: 'PUT', headers,
         body: JSON.stringify({ product: { id: product.id, options: [{ name: 'Size' }], variants: newVariants } })
     });
@@ -48,13 +48,13 @@ async function collapseLegacyProduct(product) {
     let refreshed = (await putRes.json()).product;
 
     // Restore per-size stock on the new variants
-    const locRes = await fetch(`https://${shop}/admin/api/2023-10/locations.json`, { headers });
+    const locRes = await fetch(`https://${shop}/admin/api/2026-07/locations.json`, { headers });
     const locationId = locRes.ok ? (await locRes.json()).locations?.[0]?.id : null;
     if (locationId) {
         for (const v of refreshed.variants || []) {
             const qty = stockBySize[sizeLabelOfVariant(v)] || 0;
             if (v.inventory_item_id != null) {
-                await fetch(`https://${shop}/admin/api/2023-10/inventory_levels/set.json`, {
+                await fetch(`https://${shop}/admin/api/2026-07/inventory_levels/set.json`, {
                     method: 'POST', headers,
                     body: JSON.stringify({ location_id: locationId, inventory_item_id: v.inventory_item_id, available: qty })
                 });
