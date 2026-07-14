@@ -1,11 +1,12 @@
 client_id = "966c98da8c1bdfd13d71f545ce855716"
 name = "Houseplant App"
-application_url = "https://plant-bundle-production.up.railway.app"
+application_url = "https://plant-bundle-xi-production.up.railway.app"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
 dev_store_url = "testing-plant-bundle.myshopify.com"
+include_config_on_deploy = true
 
 [access_scopes]
 # Expanded scopes to allow the app to fully sync and generate products/variants and manage files
@@ -13,7 +14,7 @@ scopes = "read_products,write_products,read_inventory,write_inventory,read_order
 
 [auth]
 redirect_urls = [
-  "https://plant-bundle-production.up.railway.app/api/auth/callback"
+  "https://plant-bundle-xi-production.up.railway.app/api/auth/callback"
 ]
 
 [webhooks]
